@@ -21,7 +21,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-FROM debian:bullseye-slim as kas-base
+#FROM debian:buster-slim AS kas-base
+
+FROM ubuntu:18.04 AS kas-base
+
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
@@ -32,8 +35,8 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         python3-pip python3-setuptools python3-wheel python3-yaml python3-distro python3-jsonschema \
         python3-newt python3-colorlog \
-        gosu lsb-release file vim less procps tree tar bzip2 zstd pigz lz4 unzip tmux libncurses-dev \
-        git-lfs mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
+        gosu lsb-release file vim less procps tree tar bzip2 zstd pigz unzip tmux libncurses-dev \
+        mercurial iproute2 ssh-client telnet curl rsync gnupg awscli sudo \
         socat bash-completion && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -64,7 +67,7 @@ ENTRYPOINT ["/kas/container-entrypoint"]
 # kas-isar image
 #
 
-FROM kas-base as kas-isar
+FROM kas-base AS kas-isar
 
 # The install package list are actually taking 1:1 from their documentation,
 # so there some packages that can already installed by other downstream layers.
@@ -88,7 +91,7 @@ USER builder
 # kas image
 #
 
-FROM kas-base as kas
+FROM kas-base AS kas
 
 # The install package list are actually taking 1:1 from their documentation,
 # so there some packages that can already installed by other downstream layers.
@@ -96,7 +99,7 @@ FROM kas-base as kas
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
         gawk wget git diffstat unzip texinfo \
-        gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
+        gcc m4 build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
         xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev \
         pylint3 xterm python3-subunit mesa-common-dev zstd liblz4-tool && \
     if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
